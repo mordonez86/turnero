@@ -1,13 +1,13 @@
 package turneromedico.dao;
 
-import turneromedico.model.Medico;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import turneromedico.model.Medico;
 
 public class MedicoDAOImpl implements MedicoDAO {
-    private String url = "jdbc:h2:~/turneromedico";  // URL de la base de datos H2
+    // private String url = "jdbc:h2:~/turneromedico";  
+    private String url = "jdbc:h2:tcp://localhost/C:\\Users\\matum\\Desktop\\ToolBoxes\\Toolbox Matias\\Up\\Segundo Año\\Laboratorio 1 Java\\turnero\\h2\\base_de_datos\\turnero";  // URL de la base de datos H2
     private String user = "sa";  // Usuario por defecto de H2
     private String password = "";  // Contraseña por defecto de H2
 
