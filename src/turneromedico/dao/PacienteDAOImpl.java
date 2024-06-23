@@ -3,11 +3,12 @@ package turneromedico.dao;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import turneromedico.exceptions.DAOException;
 import turneromedico.model.Paciente;
 
 public class PacienteDAOImpl implements PacienteDAO {
 
-    public PacienteDAOImpl() {
+    public PacienteDAOImpl() throws DAOException {
         try (Connection connection = DBManager.connect();
              Statement statement = connection.createStatement()) {
             // Crear tabla si no existe
@@ -20,12 +21,12 @@ public class PacienteDAOImpl implements PacienteDAO {
                          "historia_clinica VARCHAR(255))";
             statement.execute(sql);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DAOException("Error creating Paciente table", e);
         }
     }
 
     @Override
-    public void crear(Paciente paciente) {
+    public void crear(Paciente paciente) throws DAOException {
         try (Connection connection = DBManager.connect()) {
             String sql = "INSERT INTO pacientes (nombre, apellido, telefono, email, historia_clinica) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -35,6 +36,7 @@ public class PacienteDAOImpl implements PacienteDAO {
                 statement.setString(4, paciente.getEmail());
                 statement.setString(5, paciente.getHistoriaClinica());
                 statement.executeUpdate();
+
                 // Obtener el ID generado
                 ResultSet generatedKeys = statement.getGeneratedKeys();
                 if (generatedKeys.next()) {
@@ -43,12 +45,12 @@ public class PacienteDAOImpl implements PacienteDAO {
                 connection.commit();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DAOException("Error creating Paciente", e);
         }
     }
 
     @Override
-    public Paciente leer(Integer id) {
+    public Paciente leer(Integer id) throws DAOException {
         Paciente paciente = null;
         try (Connection connection = DBManager.connect()) {
             String sql = "SELECT * FROM pacientes WHERE id = ?";
@@ -67,13 +69,13 @@ public class PacienteDAOImpl implements PacienteDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DAOException("Error reading Paciente with ID: " + id, e);
         }
         return paciente;
     }
 
     @Override
-    public void actualizar(Paciente paciente) {
+    public void actualizar(Paciente paciente) throws DAOException {
         try (Connection connection = DBManager.connect()) {
             String sql = "UPDATE pacientes SET nombre = ?, apellido = ?, telefono = ?, email = ?, historia_clinica = ? WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -86,12 +88,12 @@ public class PacienteDAOImpl implements PacienteDAO {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DAOException("Error updating Paciente", e);
         }
     }
 
     @Override
-    public void eliminar(Integer id) {
+    public void eliminar(Integer id) throws DAOException {
         try (Connection connection = DBManager.connect()) {
             String sql = "DELETE FROM pacientes WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -99,12 +101,12 @@ public class PacienteDAOImpl implements PacienteDAO {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DAOException("Error deleting Paciente with ID: " + id, e);
         }
     }
 
     @Override
-    public List<Paciente> listar() {
+    public List<Paciente> listar() throws DAOException {
         List<Paciente> pacientes = new ArrayList<>();
         try (Connection connection = DBManager.connect()) {
             String sql = "SELECT * FROM pacientes";
@@ -123,7 +125,7 @@ public class PacienteDAOImpl implements PacienteDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DAOException("Error listing Pacientes", e);
         }
         return pacientes;
     }

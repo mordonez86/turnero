@@ -2,6 +2,7 @@ package turneromedico.ui.panels;
 
 import turneromedico.model.Paciente;
 import turneromedico.service.PacienteService;
+import turneromedico.exceptions.ServiceException;
 import turneromedico.ui.main.MenuPanel;
 import turneromedico.util.LimpiarCampos;
 
@@ -17,7 +18,11 @@ public class PacientePanel extends JPanel {
 
     public PacientePanel(JFrame parentFrame) {
         this.parentFrame = parentFrame;
-        this.pacienteService = new PacienteService();
+        try {
+            this.pacienteService = new PacienteService();
+        } catch (ServiceException e) {
+            mostrarError("Error al inicializar el servicio de pacientes: " + e.getMessage());
+        }
 
         setLayout(new GridLayout(7, 2));
 
@@ -73,10 +78,18 @@ public class PacientePanel extends JPanel {
         String historiaClinica = historiaClinicaField.getText();
 
         Paciente paciente = new Paciente(null, nombre, apellido, telefono, email, historiaClinica);
-        pacienteService.crear(paciente);
-        JOptionPane.showMessageDialog(this, " Paciente creado exitosamente.");
 
-        // Limpiar campos después de guardar
-        LimpiarCampos.limpiarCampos(this);
+        try {
+            pacienteService.crear(paciente);
+            JOptionPane.showMessageDialog(this, " Paciente creado exitosamente.");
+            // Limpiar campos después de guardar
+            LimpiarCampos.limpiarCampos(this);
+        } catch (ServiceException e) {
+            mostrarError("Error al crear el paciente: " + e.getMessage());
+        }
+    }
+
+    private void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
     }
 }
