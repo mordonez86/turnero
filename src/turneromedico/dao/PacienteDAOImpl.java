@@ -1,27 +1,14 @@
 package turneromedico.dao;
 
-import turneromedico.model.Paciente;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import turneromedico.model.Paciente;
 
 public class PacienteDAOImpl implements PacienteDAO {
-    private String url = "jdbc:h2:~/turneromedico";  // URL de la base de datos H2
-    private String user = "sa";  // Usuario por defecto de H2
-    private String password = "";  // Contraseña por defecto de H2
-
-    static {
-        try {
-            // Registrar el controlador H2
-            Class.forName("org.h2.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
 
     public PacienteDAOImpl() {
-        try (Connection connection = DriverManager.getConnection(url, user, password);
+        try (Connection connection = DBManager.connect();
              Statement statement = connection.createStatement()) {
             // Crear tabla si no existe
             String sql = "CREATE TABLE IF NOT EXISTS pacientes (" +
@@ -39,7 +26,7 @@ public class PacienteDAOImpl implements PacienteDAO {
 
     @Override
     public void crear(Paciente paciente) {
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+        try (Connection connection = DBManager.connect()) {
             String sql = "INSERT INTO pacientes (nombre, apellido, telefono, email, historia_clinica) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 statement.setString(1, paciente.getNombre());
@@ -48,12 +35,12 @@ public class PacienteDAOImpl implements PacienteDAO {
                 statement.setString(4, paciente.getEmail());
                 statement.setString(5, paciente.getHistoriaClinica());
                 statement.executeUpdate();
-
                 // Obtener el ID generado
                 ResultSet generatedKeys = statement.getGeneratedKeys();
                 if (generatedKeys.next()) {
                     paciente.setId(generatedKeys.getInt(1));
                 }
+                connection.commit();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -63,7 +50,7 @@ public class PacienteDAOImpl implements PacienteDAO {
     @Override
     public Paciente leer(Integer id) {
         Paciente paciente = null;
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+        try (Connection connection = DBManager.connect()) {
             String sql = "SELECT * FROM pacientes WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setInt(1, id);
@@ -87,7 +74,7 @@ public class PacienteDAOImpl implements PacienteDAO {
 
     @Override
     public void actualizar(Paciente paciente) {
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+        try (Connection connection = DBManager.connect()) {
             String sql = "UPDATE pacientes SET nombre = ?, apellido = ?, telefono = ?, email = ?, historia_clinica = ? WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, paciente.getNombre());
@@ -105,7 +92,7 @@ public class PacienteDAOImpl implements PacienteDAO {
 
     @Override
     public void eliminar(Integer id) {
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+        try (Connection connection = DBManager.connect()) {
             String sql = "DELETE FROM pacientes WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setInt(1, id);
@@ -119,7 +106,7 @@ public class PacienteDAOImpl implements PacienteDAO {
     @Override
     public List<Paciente> listar() {
         List<Paciente> pacientes = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+        try (Connection connection = DBManager.connect()) {
             String sql = "SELECT * FROM pacientes";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 ResultSet resultSet = statement.executeQuery();

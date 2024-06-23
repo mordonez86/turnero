@@ -1,9 +1,8 @@
 package turneromedico.service;
 
+import java.util.List;
 import turneromedico.dao.MedicoDAOImpl;
 import turneromedico.model.Medico;
-
-import java.util.List;
 
 public class MedicoService {
     private MedicoDAOImpl medicoDAO;
@@ -12,7 +11,7 @@ public class MedicoService {
         this.medicoDAO = new MedicoDAOImpl();
     }
 
-    public void crear(Medico medico) {
+    public void crear(Medico medico){
         medicoDAO.crear(medico);
     }
 

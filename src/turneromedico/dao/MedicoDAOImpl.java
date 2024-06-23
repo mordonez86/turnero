@@ -6,22 +6,9 @@ import java.util.List;
 import turneromedico.model.Medico;
 
 public class MedicoDAOImpl implements MedicoDAO {
-    // private String url = "jdbc:h2:~/turneromedico";  
-    private String url = "jdbc:h2:tcp://localhost/C:\\Users\\matum\\Desktop\\ToolBoxes\\Toolbox Matias\\Up\\Segundo Año\\Laboratorio 1 Java\\turnero\\h2\\base_de_datos\\turnero";  // URL de la base de datos H2
-    private String user = "sa";  // Usuario por defecto de H2
-    private String password = "";  // Contraseña por defecto de H2
-
-    static {
-        try {
-            // Registrar el controlador H2
-            Class.forName("org.h2.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
 
     public MedicoDAOImpl() {
-        try (Connection connection = DriverManager.getConnection(url, user, password);
+        try (Connection connection = DBManager.connect();
              Statement statement = connection.createStatement()) {
             // Crear tabla si no existe
             String sql = "CREATE TABLE IF NOT EXISTS medicos (" +
@@ -39,7 +26,7 @@ public class MedicoDAOImpl implements MedicoDAO {
 
     @Override
     public void crear(Medico medico) {
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+        try (Connection connection = DBManager.connect()) {
             String sql = "INSERT INTO medicos (nombre, apellido, telefono, email, especialidad) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 statement.setString(1, medico.getNombre());
@@ -54,6 +41,7 @@ public class MedicoDAOImpl implements MedicoDAO {
                 if (generatedKeys.next()) {
                     medico.setId(generatedKeys.getInt(1));
                 }
+                connection.commit();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -63,7 +51,7 @@ public class MedicoDAOImpl implements MedicoDAO {
     @Override
     public Medico leer(Integer id) {
         Medico medico = null;
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+        try (Connection connection = DBManager.connect()) {
             String sql = "SELECT * FROM medicos WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setInt(1, id);
@@ -87,7 +75,7 @@ public class MedicoDAOImpl implements MedicoDAO {
 
     @Override
     public void actualizar(Medico medico) {
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+        try (Connection connection = DBManager.connect()) {
             String sql = "UPDATE medicos SET nombre = ?, apellido = ?, telefono = ?, email = ?, especialidad = ? WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, medico.getNombre());
@@ -105,7 +93,7 @@ public class MedicoDAOImpl implements MedicoDAO {
 
     @Override
     public void eliminar(Integer id) {
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+        try (Connection connection = DBManager.connect()) {
             String sql = "DELETE FROM medicos WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setInt(1, id);
@@ -119,7 +107,7 @@ public class MedicoDAOImpl implements MedicoDAO {
     @Override
     public List<Medico> listar() {
         List<Medico> medicos = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+        try (Connection connection = DBManager.connect()) {
             String sql = "SELECT * FROM medicos";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 ResultSet resultSet = statement.executeQuery();
