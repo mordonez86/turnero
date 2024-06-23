@@ -8,11 +8,18 @@ public class Medico extends Persona {
         this.especialidad = especialidad;
     }
 
-    public String getEspecialidad() { return especialidad; }
-    public void setEspecialidad(String especialidad) { this.especialidad = especialidad; }
+    public String getEspecialidad() {
+        return especialidad;
+    }
+
+    public void setEspecialidad(String especialidad) {
+        this.especialidad = especialidad;
+    }
 
     @Override
     public void mostrarInformacion() {
-        System.out.println("Id: " + getId() + " " + "Médico: " + getNombre() + " " + getApellido() + " - Especialidad: " + especialidad);
+        System.out.println("Id: " + getId() + " " +
+                           "Médico: " + getNombre() + " " + getApellido() + 
+                           " - Especialidad: " + especialidad);
     }
 }
